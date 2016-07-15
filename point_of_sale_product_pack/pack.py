@@ -59,7 +59,40 @@ class pos_order(osv.osv):
         self.expand_packs(cr, uid, ids, context)
         return result
 
+    def expand_pack_line(self, cr, uid, order, line, subline, sequence, context=None):
+        sequence += 1
+
+        subproduct = subline.product_id
+        quantity = subline.quantity * line.qty
+
+        if line.product_id.pack_price_type == 'fixed_price':
+            discount = 100.0
+            notice = 'Included in pack'
+        else:
+            discount = line.discount
+            notice = line.notice
+
+        # Obtain product name in partner's language
+        ctx = {'lang': order.partner_id.lang}
+        subproduct_name = self.pool.get('product.product').browse(cr, uid, subproduct.id, ctx).name
+
+        vals = {
+            'sequence': sequence,
+            'order_id': order.id,
+            'name': '%s%s' % ('> '* (line.pack_depth+1), subproduct_name),
+            'product_id': subproduct.id,
+            'discount': discount,
+            'notice': notice,
+            'qty': quantity,
+            'pack_parent_line_id': line.id,
+            'pack_depth': line.pack_depth + 1,
+        }
+        new_line_id = self.pool.get('pos.order.line').create(cr, uid, vals, context)
+        print 'evugor:expand_packs create line', vals
+        return new_line_id
+
     def expand_packs(self, cr, uid, ids, context={}, depth=1):
+        print 'evugor:expand_packs context', context
         if depth == 10:
             return
         updated_orders = []
@@ -109,36 +142,7 @@ class pos_order(osv.osv):
                 last_had_children = False
                 
                 for subline in line.product_id.pack_line_ids:
-                    sequence += 1
-                    
-                    subproduct = subline.product_id
-#                    quantity = subline.quantity * line.product_uom_qty
-                    quantity = subline.quantity * line.qty
-                    
-                    if line.product_id.pack_price_type == 'fixed_price':
-                        discount = 100.0
-                        notice = 'Included in pack'
-                    else:
-                        discount = line.discount
-                        notice = line.notice
-
-                    # Obtain product name in partner's language
-                    ctx = {'lang': order.partner_id.lang}
-                    subproduct_name = self.pool.get('product.product').browse(cr, uid, subproduct.id, ctx).name
-
-                    vals = {
-                        'sequence': sequence,
-                        'order_id': order.id,
-                        'name': '%s%s' % ('> '* (line.pack_depth+1), subproduct_name),
-                        'product_id': subproduct.id,
-                        'discount': discount,
-                        'notice': notice,
-                        'qty': quantity,
-                        'pack_parent_line_id': line.id,
-                        'pack_depth': line.pack_depth + 1,
-                    }
-
-                    self.pool.get('pos.order.line').create(cr, uid, vals, context)
+                    self.expand_pack_line(cr, uid, order, line, subline, sequence, context=context)#EVUGOR
                     if not order.id in updated_orders:
                         updated_orders.append( order.id )
 
