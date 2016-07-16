@@ -576,33 +576,38 @@ openerp.pos_loyalty = function(instance){
 
             this.unpaid_orders_popup = new module.UnpaidOrdersPopupWidget(this,{});
             this.unpaid_orders_popup.appendTo(this.$el);
-            
-            this.screen_selector = new module.ScreenSelector({
-                pos: this.pos,
-                screen_set:{
-                    'products': this.product_screen,
-                    'payment' : this.payment_screen,
-                    'scale':    this.scale_screen,
-                    'receipt' : this.receipt_screen,
-                    'clientlist': this.clientlist_screen,
-                },
-                popup_set:{
-                    'error':            this.error_popup,
-                    'error-barcode':    this.error_barcode_popup,
-                    'error-traceback':  this.error_traceback_popup,
-                    'textinput':        this.textinput_popup,
-                    'textarea':         this.textarea_popup,
-                    'number':           this.number_popup,
-                    'password':         this.password_popup,
-                    'confirm':          this.confirm_popup,
-                    'selection':        this.selection_popup,
-                    'unsent-orders':    this.unsent_orders_popup,
-                    'unpaid-orders':    this.unpaid_orders_popup,
-                },
-                default_screen: 'products',
-                default_mode: 'cashier',
-            });
-            
+            this.screen_selector.add_popup('textinput',this.textinput_popup);//EVUGOR
+            this.screen_selector.add_popup('textarea',this.textarea_popup);//EVUGOR
+            this.screen_selector.add_popup('number',this.number_popup);//EVUGOR
+            this.screen_selector.add_popup('password',this.password_popup);//EVUGOR
+            this.screen_selector.add_popup('selection',this.selection_popup);//EVUGOR
+            this.screen_selector.add_popup('unpaid-orders',this.unpaid_orders_popup);//EVUGOR
+
+//            this.screen_selector = new module.ScreenSelector({
+//                pos: this.pos,
+//                screen_set:{
+//                    'products': this.product_screen,
+//                    'payment' : this.payment_screen,
+//                    'scale':    this.scale_screen,
+//                    'receipt' : this.receipt_screen,
+//                    'clientlist': this.clientlist_screen,
+//                },
+//                popup_set:{
+//                    'error':            this.error_popup,
+//                    'error-barcode':    this.error_barcode_popup,
+//                    'error-traceback':  this.error_traceback_popup,
+//                    'textinput':        this.textinput_popup,
+//                    'textarea':         this.textarea_popup,
+//                    'number':           this.number_popup,
+//                    'password':         this.password_popup,
+//                    'confirm':          this.confirm_popup,
+//                    'selection':        this.selection_popup,
+//                    'unsent-orders':    this.unsent_orders_popup,
+//                    'unpaid-orders':    this.unpaid_orders_popup,
+//                },
+//                default_screen: 'products',
+//                default_mode: 'cashier',
+//            });
         },
         
     });
