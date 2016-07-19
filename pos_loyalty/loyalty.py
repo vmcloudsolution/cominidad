@@ -137,7 +137,13 @@ class pos_order(osv.osv):
                 partner = self.pool.get('res.partner').browse(cr,uid,order['data']['partner_id'], context=context)
                 partner.write({'loyalty_points': partner['loyalty_points'] + order['data']['loyalty_points']})
         return ids
-            
+
+class pos_order_line(osv.osv):
+    _inherit = 'pos.order.line'
+
+    _columns = {
+        'points_won': fields.float('Points won', help='The amount of Loyalty points the customer won with this product'),
+    }
              
     
 

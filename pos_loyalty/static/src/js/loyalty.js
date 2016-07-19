@@ -72,6 +72,10 @@ openerp.pos_loyalty = function(instance){
 
     var _super_orderline = module.Orderline;
     module.Orderline = module.Orderline.extend({
+        initialize: function(attr,options){
+            _super_orderline.prototype.initialize.call(this, attr,options);
+            this.points_won = [] //Puntos ganados por el producto
+        },
         get_reward: function(){
             return this.pos.loyalty.rewards_by_id[this.reward_id];
         },
@@ -81,6 +85,7 @@ openerp.pos_loyalty = function(instance){
         export_as_JSON: function(){
             var json = _super_orderline.prototype.export_as_JSON.apply(this,arguments);
             json.reward_id = this.reward_id;
+            json.points_won = this.points_won;//EVUGOR
             return json;
         },
         init_from_JSON: function(json){
@@ -221,6 +226,7 @@ openerp.pos_loyalty = function(instance){
             var total_points = 0;
 
             for (var i = 0; i < orderLines.length; i++) {
+                var total_points_product = 0;
                 var line = orderLines[i];
                 var product = line.get_product();
                 var rules  = this.pos.loyalty.rules_by_product_id[product.id] || [];
@@ -233,6 +239,8 @@ openerp.pos_loyalty = function(instance){
                     var rule = rules[j];
                     total_points += round_pr(line.get_quantity() * rule.pp_product, rounding);
                     total_points += round_pr(line.get_price_with_tax() * rule.pp_currency, rounding);
+                    total_points_product += round_pr(line.get_quantity() * rule.pp_product, rounding);//EVUGOR
+                    total_points_product += round_pr(line.get_price_with_tax() * rule.pp_currency, rounding);//EVUGOR
                     // if affected by a non cumulative rule, skip the others. (non cumulative rules are put
                     // at the beginning of the list when they are loaded )
                     if (!rule.cumulative) { 
@@ -240,6 +248,7 @@ openerp.pos_loyalty = function(instance){
                         break;
                     }
                 }
+                line.points_won = total_points_product;//EVUGOR
                 // Test the category rules
                 if ( product.pos_categ_id ) {
                     var category = this.pos.db.get_category_by_id(product.pos_categ_id[0]);
