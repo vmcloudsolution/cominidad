@@ -237,7 +237,11 @@ openerp.pos_loyalty = function(instance){
                 }
                 for (var j = 0; j < rules.length; j++) {
                     var rule = rules[j];
-                    total_points += round_pr(line.get_quantity() * rule.pp_product, rounding);
+                    //total_points += round_pr(line.get_quantity() * rule.pp_product, rounding); //EVUGOR
+                    if (line.get_price_with_tax() > 0){ //EVUGOR
+                        //Suma puntos para productos que tengan precio venta mayor a Cero
+                        total_points += round_pr(line.get_quantity() * rule.pp_product, rounding);
+                    }
                     total_points += round_pr(line.get_price_with_tax() * rule.pp_currency, rounding);
                     total_points_product += round_pr(line.get_quantity() * rule.pp_product, rounding);//EVUGOR
                     total_points_product += round_pr(line.get_price_with_tax() * rule.pp_currency, rounding);//EVUGOR
