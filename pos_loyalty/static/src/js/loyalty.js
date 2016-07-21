@@ -241,9 +241,9 @@ openerp.pos_loyalty = function(instance){
                     if (line.get_price_with_tax() > 0){ //EVUGOR
                         //Suma puntos para productos que tengan precio venta mayor a Cero
                         total_points += round_pr(line.get_quantity() * rule.pp_product, rounding);
+                        total_points_product += round_pr(line.get_quantity() * rule.pp_product, rounding);//EVUGOR
                     }
                     total_points += round_pr(line.get_price_with_tax() * rule.pp_currency, rounding);
-                    total_points_product += round_pr(line.get_quantity() * rule.pp_product, rounding);//EVUGOR
                     total_points_product += round_pr(line.get_price_with_tax() * rule.pp_currency, rounding);//EVUGOR
                     // if affected by a non cumulative rule, skip the others. (non cumulative rules are put
                     // at the beginning of the list when they are loaded )
