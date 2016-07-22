@@ -88,11 +88,9 @@ class pos_order(osv.osv):
             'pack_depth': line.pack_depth + 1,
         }
         new_line_id = self.pool.get('pos.order.line').create(cr, uid, vals, context)
-        print 'evugor:expand_packs create line', vals
         return new_line_id
 
     def expand_packs(self, cr, uid, ids, context={}, depth=1):
-        print 'evugor:expand_packs context', context
         if depth == 10:
             return
         updated_orders = []
