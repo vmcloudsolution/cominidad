@@ -252,7 +252,6 @@ openerp.pos_loyalty = function(instance){
                         break;
                     }
                 }
-                line.points_won = total_points_product;//EVUGOR
                 // Test the category rules
                 if ( product.pos_categ_id ) {
                     var category = this.pos.db.get_category_by_id(product.pos_categ_id[0]);
@@ -260,8 +259,13 @@ openerp.pos_loyalty = function(instance){
                         var rules = this.pos.loyalty.rules_by_category_id[category.id] || [];
                         for (var j = 0; j < rules.length; j++) {
                             var rule = rules[j];
-                            total_points += round_pr(line.get_quantity() * rule.pp_product, rounding);
+                            //total_points += round_pr(line.get_quantity() * rule.pp_product, rounding);
                             total_points += round_pr(line.get_price_with_tax() * rule.pp_currency, rounding);
+                            if (line.get_price_with_tax() > 0){ //EVUGOR
+                                //Suma puntos para productos que tengan precio venta mayor a Cero
+                                total_points += round_pr(line.get_quantity() * rule.pp_product, rounding);
+                                total_points_product += round_pr(line.get_quantity() * rule.pp_product, rounding);//EVUGOR
+                            }
                             if (!rule.cumulative) {
                                 overriden = true;
                                 break;
@@ -274,7 +278,7 @@ openerp.pos_loyalty = function(instance){
                         }
                     }
                 }
-
+                line.points_won = total_points_product;//EVUGOR
                 if (!overriden) {
                     product_sold += line.get_quantity();
                     total_sold   += line.get_price_with_tax();
