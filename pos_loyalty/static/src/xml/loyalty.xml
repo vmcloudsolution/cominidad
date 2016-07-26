@@ -40,11 +40,11 @@
         </t>
     </t>
 
-    <t t-extend="XmlReceipt">
+    <!--<t t-extend="XmlReceipt">
         <t t-jquery='.before-footer' t-operation='append'>
             <t t-if='receipt.loyalty'>
                 <div class='loyalty' value-decimals='2' value-autoint='on'>
-                    <div>--------------------------------</div>
+                    <div></div>
                     <br/>
                     <div size='double-height'><t t-esc='receipt.loyalty.name'/></div>
                     <br />
@@ -63,7 +63,7 @@
                 </div>
             </t>
         </t>
-    </t>
+    </t>-->
 
     <t t-extend='ClientDetails'>
         <t t-jquery='.client-details-right' t-operation='prepend'>

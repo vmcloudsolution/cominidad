@@ -75,7 +75,6 @@ class product_product(models.Model):
                     pack_virtual_available.append(math.floor(
                         subproduct_stock['virtual_available'] / sub_qty))
             # TODO calcular correctamente pack virtual available para negativos
-            print 'evugor:333', pack_qty_available
             res[product.id] = {
                 'qty_available': min(pack_qty_available) if pack_qty_available else 0,
                 'incoming_qty': 0,
