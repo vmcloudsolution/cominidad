@@ -53,35 +53,35 @@ class product_product(models.Model):
         'product.pack.line', 'parent_product_id', 'Pack Products',
         help='List of products that are part of this pack.')
 
-    def _product_available(self, cr, uid, ids, field_names=None, arg=False, context=None):
-        pack_product_ids = self.search(cr, uid, [
-            ('pack', '=', True),
-            ('id', 'in', ids),
-        ])
-        res = super(product_product, self)._product_available(
-            cr, uid, list(set(ids) - set(pack_product_ids)),
-            field_names, arg, context)
-        for product in self.browse(cr, uid, pack_product_ids, context=context):
-            pack_qty_available = []
-            pack_virtual_available = []
-            for subproduct in product.pack_line_ids:
-                subproduct_stock = self._product_available(
-                    cr, uid, [subproduct.product_id.id], field_names, arg,
-                    context)[subproduct.product_id.id]
-                sub_qty = subproduct.quantity
-                if sub_qty:
-                    pack_qty_available.append(math.floor(
-                        subproduct_stock['qty_available'] / sub_qty))
-                    pack_virtual_available.append(math.floor(
-                        subproduct_stock['virtual_available'] / sub_qty))
-            # TODO calcular correctamente pack virtual available para negativos
-            res[product.id] = {
-                'qty_available': min(pack_qty_available) if pack_qty_available else 0,
-                'incoming_qty': 0,
-                'outgoing_qty': 0,
-                'virtual_available': max(min(pack_virtual_available), 0) if pack_virtual_available else 0,
-            }
-        return res
+    # def _product_available(self, cr, uid, ids, field_names=None, arg=False, context=None):
+    #     pack_product_ids = self.search(cr, uid, [
+    #         ('pack', '=', True),
+    #         ('id', 'in', ids),
+    #     ])
+    #     res = super(product_product, self)._product_available(
+    #         cr, uid, list(set(ids) - set(pack_product_ids)),
+    #         field_names, arg, context)
+    #     for product in self.browse(cr, uid, pack_product_ids, context=context):
+    #         pack_qty_available = []
+    #         pack_virtual_available = []
+    #         for subproduct in product.pack_line_ids:
+    #             subproduct_stock = self._product_available(
+    #                 cr, uid, [subproduct.product_id.id], field_names, arg,
+    #                 context)[subproduct.product_id.id]
+    #             sub_qty = subproduct.quantity
+    #             if sub_qty:
+    #                 pack_qty_available.append(math.floor(
+    #                     subproduct_stock['qty_available'] / sub_qty))
+    #                 pack_virtual_available.append(math.floor(
+    #                     subproduct_stock['virtual_available'] / sub_qty))
+    #         # TODO calcular correctamente pack virtual available para negativos
+    #         res[product.id] = {
+    #             'qty_available': min(pack_qty_available) if pack_qty_available else 0,
+    #             'incoming_qty': 0,
+    #             'outgoing_qty': 0,
+    #             'virtual_available': max(min(pack_virtual_available), 0) if pack_virtual_available else 0,
+    #         }
+    #     return res
 
     def _search_product_quantity(self, cr, uid, obj, name, domain, context):
         return super(product_product, self)._search_product_quantity(
