@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record id="view_import_inventory" model="ir.ui.view">
+            <field name="name">import.inventory.form</field>
+            <field name="model">import.inventory</field>
+            <field name="inherit_id" ref="stock_inventory_import.view_import_inventory" />
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <xpath expr="//form/label[1]" position="replace">
+                    <label string="El archivo debe tener 2 columnas: code=>Referencia interna; quantity=>Cantidad inventariada"/>
+                </xpath>
+                <xpath expr="//field[@name='location']" position="replace">
+                </xpath>
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="location" colspan="4" readonly="1"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="view_inventory_form_inherit" model="ir.ui.view">
+            <field name="name">view.inventory.form.inherit</field>
+            <field name="model">stock.inventory</field>
+            <field name="inherit_id" ref="stock_inventory_import.view_inventory_form_inherit" />
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='quantity']" position="attributes">
+                    <attribute name="sum">Total</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>
