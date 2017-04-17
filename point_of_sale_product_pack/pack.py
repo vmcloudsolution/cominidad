@@ -54,10 +54,10 @@ class pos_order(osv.osv):
         self.expand_packs(cr, uid, [result], context)
         return result
 
-    def write(self, cr, uid, ids, vals, context=None):
-        result = super(pos_order,self).write(cr, uid, ids, vals, context)
-        self.expand_packs(cr, uid, ids, context)
-        return result
+    # def write(self, cr, uid, ids, vals, context=None):
+    #     result = super(pos_order,self).write(cr, uid, ids, vals, context)
+    #     self.expand_packs(cr, uid, ids, context)
+    #     return result
 
     def expand_pack_line(self, cr, uid, order, line, subline, sequence, context=None):
         sequence += 1
@@ -138,9 +138,10 @@ class pos_order(osv.osv):
                     last_had_children = True
                     continue
                 last_had_children = False
-                
+
                 for subline in line.product_id.pack_line_ids:
                     self.expand_pack_line(cr, uid, order, line, subline, sequence, context=context)#EVUGOR
+                    sequence += 1 #EVUGOR:Corrige error de packs desordenados
                     if not order.id in updated_orders:
                         updated_orders.append( order.id )
 
