@@ -19,6 +19,10 @@
     "name": "Extend Stock Inventory Import from CSV file",
     "version": "8.0.1.0.0",
     "category": "Generic Modules",
+    'description': """
+        Instalar:
+        sudo pip install pandas
+    """,
     "author": "VMCLOUD SOLUTION",
     "website": "",
     "depends": [

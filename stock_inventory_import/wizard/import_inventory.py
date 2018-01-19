@@ -23,6 +23,25 @@ class ImportInventory(models.TransientModel):
     location = fields.Many2one('stock.location', 'Default Location',
                                default=_get_default_location, required=True)
 
+    def _find_product(self, value):
+        if not value:
+            return False
+        product_obj = self.env['product.product']
+        prod_lst = product_obj.search(['|', '|',
+                                       ('default_code', '=', value),
+                                       ('default_code', '=', value.upper()),
+                                       ('default_code', '=', value.lower())
+                                       ])
+        if not prod_lst:
+            #Busca por el nombre
+            self._cr.execute("""
+                SELECT  id
+                FROM    product_product
+                WHERE   trim(both ' ' from lower(name_template)) = %s
+            """, (value.lower(), ))
+            res = self._cr.fetchall()
+            prod_lst = product_obj.browse(res[0][0]) if res and len(res) == 1 else False
+        return prod_lst
     @api.one
     def action_import(self):
         """Load Inventory data from the CSV file."""
@@ -53,10 +72,9 @@ class ImportInventory(models.TransientModel):
             raise exceptions.Warning(_("Not a valid file!"))
         keys = reader_info[0]
         # check if keys exist
-        if not isinstance(keys, list) or ('code' not in keys or
-                                          'quantity' not in keys):
-            raise exceptions.Warning(
-                _("Not 'code' or 'quantity' keys found"))
+        if not isinstance(keys, list) or ('codigo' not in keys or
+                                          'cantidad' not in keys):
+            raise exceptions.Warning(_("No se encontro las columnas codigo o cantidad en el archivo"))
         del reader_info[0]
         values = {}
         actual_date = fields.Date.today()
@@ -73,14 +91,16 @@ class ImportInventory(models.TransientModel):
                 locations = stloc_obj.search([('name', '=',
                                                values['location'])])
                 prod_location = locations[:1].id
-            prod_lst = product_obj.search([('default_code', '=',
-                                            values['code'])])
+            #Se reemplaza por funcion
+            #prod_lst = product_obj.search([('default_code', '=',
+            #                                values['code'])])
+            prod_lst = self._find_product(values['codigo'])
             if prod_lst:
                 val['product'] = prod_lst[0].id
             if 'lot' in values and values['lot']:
                 val['lot'] = values['lot']
-            val['code'] = values['code']
-            val['quantity'] = values['quantity']
+            val['code'] = values['codigo']
+            val['quantity'] = values['cantidad']
             val['location_id'] = prod_location
             val['inventory_id'] = inventory.id
             val['fail'] = True

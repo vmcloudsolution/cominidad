@@ -8,12 +8,14 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <xpath expr="//form/label[1]" position="replace">
-                    <label string="El archivo debe tener 2 columnas: code=>Referencia interna; quantity=>Cantidad inventariada"/>
+                    <label string="El archivo debe tener al menos 2 columnas: codigo=>Nombre, Código o Referencia interna del producto; cantidad=>Cantidad inventariada"/>
                 </xpath>
                 <xpath expr="//field[@name='location']" position="replace">
                 </xpath>
                 <xpath expr="//field[@name='name']" position="before">
                     <field name="location" colspan="4" readonly="1"/>
+                </xpath><xpath expr="//field[@name='delimeter']" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
             </field>
         </record>
@@ -25,6 +27,12 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='quantity']" position="attributes">
                     <attribute name="sum">Total</attribute>
+                </xpath>
+                <xpath expr="//field[@name='location_id']" position="after">
+                    <field name="user_id" required="1"/>
+                </xpath>
+                <xpath expr="//field[@name='date']" position="before">
+                    <field name="fecha_toma" required="1"/>
                 </xpath>
             </field>
         </record>
