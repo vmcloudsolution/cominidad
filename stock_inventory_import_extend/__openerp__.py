@@ -21,7 +21,7 @@
     "category": "Generic Modules",
     'description': """
         Instalar:
-        sudo pip install pandas
+        sudo apt-get install python-pandas
     """,
     "author": "VMCLOUD SOLUTION",
     "website": "",

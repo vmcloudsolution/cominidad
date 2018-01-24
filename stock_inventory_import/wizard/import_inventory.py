@@ -42,23 +42,15 @@ class ImportInventory(models.TransientModel):
             res = self._cr.fetchall()
             prod_lst = product_obj.browse(res[0][0]) if res and len(res) == 1 else False
         return prod_lst
-    @api.one
-    def action_import(self):
-        """Load Inventory data from the CSV file."""
-        ctx = self._context
-        stloc_obj = self.env['stock.location']
-        inventory_obj = self.env['stock.inventory']
-        inv_imporline_obj = self.env['stock.inventory.import.line']
-        product_obj = self.env['product.product']
-        if 'active_id' in ctx:
-            inventory = inventory_obj.browse(ctx['active_id'])
+
+    def _get_keys(self):
         if not self.data:
             raise exceptions.Warning(_("You need to select a file!"))
         # Decode the file data
         data = base64.b64decode(self.data)
         file_input = cStringIO.StringIO(data)
+        print 'evugor:file_input', file_input
         file_input.seek(0)
-        location = self.location
         reader_info = []
         if self.delimeter:
             delimeter = str(self.delimeter)
@@ -71,10 +63,53 @@ class ImportInventory(models.TransientModel):
         except Exception:
             raise exceptions.Warning(_("Not a valid file!"))
         keys = reader_info[0]
+        return keys, reader_info
+
+    def _get_values(self, keys, field):
+        ctx = self._context
+        inventory_obj = self.env['stock.inventory']
+        if 'active_id' in ctx:
+            inventory = inventory_obj.browse(ctx['active_id'])
+        val = {}
+        values = dict(zip(keys, field))
+        location = self.location
+        prod_location = location.id
+        if 'location' in values and values['location']:
+            locations = stloc_obj.search([('name', '=',
+                                           values['location'])])
+            prod_location = locations[:1].id
+        # Se reemplaza por funcion
+        # prod_lst = product_obj.search([('default_code', '=',
+        #                                values['code'])])
+        prod_lst = self._find_product(values['codigo'])
+        if prod_lst:
+            val['product'] = prod_lst[0].id
+        if 'lot' in values and values['lot']:
+            val['lot'] = values['lot']
+        val['code'] = values['codigo']
+        val['quantity'] = values['cantidad']
+        val['location_id'] = prod_location
+        val['inventory_id'] = inventory.id
+        val['fail'] = True
+        val['fail_reason'] = _('No processed')
+        return val
+
+    def _valida_campos(self, keys):
         # check if keys exist
         if not isinstance(keys, list) or ('codigo' not in keys or
-                                          'cantidad' not in keys):
+                                                  'cantidad' not in keys):
             raise exceptions.Warning(_("No se encontro las columnas codigo o cantidad en el archivo"))
+
+    @api.one
+    def action_import(self):
+        """Load Inventory data from the CSV file."""
+        ctx = self._context
+        inventory_obj = self.env['stock.inventory']
+        inv_imporline_obj = self.env['stock.inventory.import.line']
+        if 'active_id' in ctx:
+            inventory = inventory_obj.browse(ctx['active_id'])
+        keys, reader_info = self._get_keys()
+        self._valida_campos(keys)
         del reader_info[0]
         values = {}
         actual_date = fields.Date.today()
@@ -83,30 +118,8 @@ class ImportInventory(models.TransientModel):
                          'date': fields.Datetime.now(),
                          'imported': True, 'state': 'confirm'})
         for i in range(len(reader_info)):
-            val = {}
-            field = reader_info[i]
-            values = dict(zip(keys, field))
-            prod_location = location.id
-            if 'location' in values and values['location']:
-                locations = stloc_obj.search([('name', '=',
-                                               values['location'])])
-                prod_location = locations[:1].id
-            #Se reemplaza por funcion
-            #prod_lst = product_obj.search([('default_code', '=',
-            #                                values['code'])])
-            prod_lst = self._find_product(values['codigo'])
-            if prod_lst:
-                val['product'] = prod_lst[0].id
-            if 'lot' in values and values['lot']:
-                val['lot'] = values['lot']
-            val['code'] = values['codigo']
-            val['quantity'] = values['cantidad']
-            val['location_id'] = prod_location
-            val['inventory_id'] = inventory.id
-            val['fail'] = True
-            val['fail_reason'] = _('No processed')
+            val = self._get_values(keys, reader_info[i])
             inv_imporline_obj.create(val)
-
 
 class StockInventoryImportLine(models.Model):
     _name = "stock.inventory.import.line"
