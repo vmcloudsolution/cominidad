@@ -28,7 +28,7 @@ class StockInventory(models.Model):
 
     imported = fields.Boolean('Imported')
     import_lines = fields.One2many('stock.inventory.import.line',
-                                   'inventory_id', string='Imported Lines',)
+                                   'inventory_id', string='Imported Lines', states={'done': [('readonly', True)]})
     filter = fields.Selection(_get_available_filters,
                               string='Selection Filter',
                               required=True)

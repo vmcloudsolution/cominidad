@@ -49,7 +49,6 @@ class ImportInventory(models.TransientModel):
         # Decode the file data
         data = base64.b64decode(self.data)
         file_input = cStringIO.StringIO(data)
-        print 'evugor:file_input', file_input
         file_input.seek(0)
         reader_info = []
         if self.delimeter:
