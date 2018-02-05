@@ -20,10 +20,12 @@ class StockInventory(models.Model):
         for line in import_lines:
             if line.fail:
                 if not line.product:
-                    prod_lst = product_obj.search([('name', '=',
-                                                    line.code)])
+                    prod_lst = product_obj.search([('name', '=', line.code), ('active', '=', True)])
                     if prod_lst and len(prod_lst) == 1:#Solo debe existir uno
                         product = prod_lst[0]
+                    elif prod_lst and len(prod_lst) > 1:
+                        line.fail_reason = 'Existe dos productos con el mismo Nombre'
+                        continue
                     else:
                         line.fail_reason = _('No product code found')
                         continue

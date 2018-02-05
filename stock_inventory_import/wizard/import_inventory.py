@@ -38,6 +38,7 @@ class ImportInventory(models.TransientModel):
                 SELECT  id
                 FROM    product_product
                 WHERE   trim(both ' ' from lower(name_template)) = %s
+                        and active is true
             """, (value.lower(), ))
             res = self._cr.fetchall()
             prod_lst = product_obj.browse(res[0][0]) if res and len(res) == 1 else False
@@ -61,7 +62,8 @@ class ImportInventory(models.TransientModel):
             reader_info.extend(reader)
         except Exception:
             raise exceptions.Warning(_("Not a valid file!"))
-        keys = reader_info[0]
+        # Convierte a minuscuilas
+        keys = map(lambda x: x.lower(), reader_info[0])
         return keys, reader_info
 
     def _get_values(self, keys, field):
