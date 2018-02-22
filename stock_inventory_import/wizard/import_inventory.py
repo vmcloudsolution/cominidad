@@ -88,7 +88,7 @@ class ImportInventory(models.TransientModel):
         if 'lot' in values and values['lot']:
             val['lot'] = values['lot']
         val['code'] = values['codigo']
-        val['quantity'] = values['cantidad']
+        val['quantity'] = values['cantidad'].strip()
         val['location_id'] = prod_location
         val['inventory_id'] = inventory.id
         val['fail'] = True
