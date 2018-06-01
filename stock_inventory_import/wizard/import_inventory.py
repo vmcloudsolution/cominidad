@@ -39,7 +39,7 @@ class ImportInventory(models.TransientModel):
                 FROM    product_product
                 WHERE   trim(both ' ' from lower(name_template)) = %s
                         and active is true
-            """, (value.lower(), ))
+            """, (value.lower().strip(), ))
             res = self._cr.fetchall()
             prod_lst = product_obj.browse(res[0][0]) if res and len(res) == 1 else False
         return prod_lst

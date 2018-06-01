@@ -20,7 +20,7 @@ class StockInventory(models.Model):
         for line in import_lines:
             if line.fail:
                 if not line.product:
-                    prod_lst = product_obj.search([('name', '=', line.code), ('active', '=', True)])
+                    prod_lst = product_obj.search([('name', '=', line.code.strip()), ('active', '=', True)])
                     if prod_lst and len(prod_lst) == 1:#Solo debe existir uno
                         product = prod_lst[0]
                     elif prod_lst and len(prod_lst) > 1:
